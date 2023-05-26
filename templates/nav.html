@@ -1,0 +1,36 @@
+<nav class="navbar sticky-top bg-body-tertiary shadow-sm">
+	<div class="container-fluid justify-content-between">
+		<a class="navbar-brand"><img src="{{ url_for('static', filename='img/logo.png') }}" width="200px"></img></a>
+		<form class="d-flex mx-auto" role="search" style="width: 40%">
+			<div class="input-group">
+				<input type="text" class="form-control py-2" placeholder="Search" aria-describedby="button-addon2">
+				<button class="btn btn-outline-secondary" type="button" id="button-addon2"><i class="fa-solid fa-magnifying-glass"></i></button>
+			</div>
+		</form>
+		{% if user %}
+			<div class="d-flex flex-row justify-content-end align-items-center me-3">
+				<div class="d-flex flex-column align-items-center me-4">
+					<a href="/user/{{ user.id }}"><div id="picture" class="bg-dark-subtle rounded-circle" style="width: 70px; height: 70px;"></div></a>
+					<p class="mb-0">{{ user.username }}</p>
+				</div>
+				<div>
+					<p class="mb-0 fs-5"><a class="mb-0 link-dark text-decoration-none" href="/logout">Log Out</a></p>
+				</div>
+			</div>
+			<script>
+				const userPhoto = document.querySelector('#picture');
+				const userId = '{{ user.id }}';
+				const urlPhotos = '{{ url_for("static", filename="photos/") }}'
+				userPhoto.style.backgroundImage = `url(${urlPhotos}${userId}.jpg)`;
+				userPhoto.style.backgroundSize = 'cover'
+				userPhoto.style.backgroundPosition = 'center'
+			</script>
+		{% else %}
+			<div class="d-flex flex-column align-items-center me-4">
+				<p class="mb-0"><a href="/login" class="fs-5 link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Sign In</a></p><br>
+				<p class="mb-0">or</p><br>
+				<p class="mb-0"><a href="/register" class="fs-6 link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Sign Up</a></p>
+			</div>
+		{% endif %}
+	</div>
+</nav>

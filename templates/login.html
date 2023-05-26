@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Veggie Place - Login</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+</head>
+<body>
+	<nav class="navbar sticky-top bg-body-tertiary shadow-sm">
+		<div class="container-fluid">
+			<a href="/" class="navbar-brand"><img src="{{ url_for('static', filename='img/logo.png') }}" width="200px"></img></a>
+			<div class="d-flex flex-column align-items-center me-4">
+				<p class="mb-0"><a href="/register" class="fs-5 link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Sign Up</a></p>
+			</div>
+		</div>
+	</nav>
+	<main style="height: 70vh;">
+		<h2 class="text-center mt-4 mb-4">Sign In</h2>
+		<form action="/login" method="post" class="d-flex flex-column align-items-center">
+			<div class="mb-3" style="width: 40%">
+				<label class="form-label ms-1" for="email">Email</label>
+				<input class="form-control" id="email" type="email" name="email" placeholder="email" required>
+			</div>
+			<div class="mb-3" style="width: 40%">
+				<label class="form-label ms-1" for="password">Password</label>
+				<input class="form-control" id="password" type="password" name="password" placeholder="password" required>
+			</div>
+			<div><strong>{{ message }}</strong></div>
+			<button class="btn btn-primary fs-5 mt-2 rounded-4 border border-1 border-dark" type="submit">Log In</button>
+		</form>
+	</main>
+	{% include "footer.html" %}
+</body>
+</html>
