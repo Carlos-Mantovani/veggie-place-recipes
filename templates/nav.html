@@ -11,7 +11,7 @@
 			<div class="d-flex flex-row justify-content-end align-items-center me-3">
 				<div class="d-flex flex-column align-items-center me-4">
 					<a href="/user/{{ user.id }}"><div id="picture" class="bg-dark-subtle rounded-circle" style="width: 70px; height: 70px;"></div></a>
-					<p class="mb-0">{{ user.username }}</p>
+					<p class="mb-0">{{ user.username.split(' ', 1)[0] }}</p>
 				</div>
 				<div>
 					<p class="mb-0 fs-5"><a class="mb-0 link-dark text-decoration-none" href="/logout">Log Out</a></p>
@@ -22,8 +22,8 @@
 				const userId = '{{ user.id }}';
 				const urlPhotos = '{{ url_for("static", filename="photos/") }}'
 				userPhoto.style.backgroundImage = `url(${urlPhotos}${userId}.jpg)`;
-				userPhoto.style.backgroundSize = 'cover'
-				userPhoto.style.backgroundPosition = 'center'
+				userPhoto.style.backgroundSize = 'cover';
+				userPhoto.style.backgroundPosition = 'center';
 			</script>
 		{% else %}
 			<div class="d-flex flex-column align-items-center me-4">

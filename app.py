@@ -110,17 +110,21 @@ def show_user(id):
 def edit_user():
 	try:
 		user = session['user']
+
+		username = request.form.get('username')
+		password = request.form.get('password')
+		picture = request.files['picture']
 		print(request.form)
 		print(request.files)
-		if not request.form.get('password') and 'picture' not in request.files:
+		if not password and not picture:
 			new_username = request.form.get('username')
 			cursor.execute('UPDATE users SET username=%s WHERE id=%s', (new_username, user['id']))
 			db.commit()
-		elif 'picture' not in request.files and not request.form.get('password'):
-			new_username = request.form.get('username')
-			cursor.execute('UPDATE users SET username=%s WHERE id=%s', (new_username, user['id']))
-			db.commit()
-		elif not request.form.get('password') and not request.form.get('username'):
+		#elif not picture and not password:
+		#	new_username = request.form.get('username')
+		#	cursor.execute('UPDATE users SET username=%s WHERE id=%s', (new_username, user['id']))
+		#	db.commit()
+		elif not password and not username:
 			picture = request.files['picture']
 			print(picture.filename)
 			if picture.filename == '':
@@ -131,16 +135,13 @@ def edit_user():
 				filename = secure_filename(str(user['id']) + '.' + picture.filename.rsplit('.', 1)[1].lower())
 				picture.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 				return redirect(f'/user/{user["id"]}')
-		elif 'username' not in request.form and 'picture' not in request.files:
+		elif not username and not picture:
 			new_password = request.form.get('password')
 			new_password_hash = generate_password_hash(new_password)
 			cursor.execute('UPDATE users SET password=%s WHERE id=%s', (new_password_hash, user['id']))
 			db.commit()
 		else:
-			username = request.form.get('username')
-			password = request.form.get('password')
-			picture = request.files['picture']
-			if username == '' or password == '' or picture == '':
+			if not username or not password or not picture:
 				return redirect(f'/user/{user["id"]}')
 			new_username = request.form.get('username')
 			new_password = request.form.get('password')
