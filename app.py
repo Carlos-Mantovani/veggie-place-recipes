@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, flash
 import mysql.connector
-from settings import DATABASE_PASSWORD
+from dev_settings import DATABASE_PASSWORD
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 import secrets
