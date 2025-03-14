@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content ="width=device-width, initial-scale=1">
+    <title>Register recipe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+</head>
+<body>
+    {% include "nav.html" %}
+    <main>
+        <h2 class="text-center mt-4 mb-4">Register Recipe</h2>
+        <form action="/register_recipe" method="post" class="d-flex flex-column align-items-center">
+            <div class="mb-3" style="width: 40%">
+                <label class="form-label ms-1" for="recipe-name">Recipe name:</label>
+                <input class="form-control" id="recipe-name" type="text" name="recipe-name" required>
+            </div>
+            <div class="mb-3" style="width: 40%">
+                <label class="form-label ms-1" for="description">Description:</label>
+                <textarea class="form-control" rows=4 id="description" type="text" name="description" placeholder="short description..." required></textarea>
+            </div>
+            <div class="mb-3" style="width: 40%">
+                <label class="form-label ms-1" for="ingredients">Ingredients:</label>
+                <textarea class="form-control" rows=5 id="ingredients" type="text" name="ingredients" placeholder="quantity + ingredient (or weight)" required></textarea>
+            </div>
+            <div class="mb-3" style="width: 40%">
+                <label class="form-label ms-1" for="instructions">Instructions:</label>
+                <textarea class="form-control" rows=10 id="instructions" type="text" name="instructions" required></textarea>
+            </div>
+            <div class="mb-3" style="width: 40%">
+                <label class="form-label ms-1" for="category">Category</label>
+                <select class="form-select" id="category" name="category">
+                    <option value="breakfast">Breakfast</option>
+                    <option value="dessert">Dessert</option>
+                    <option value="meal">Meal</option>
+                    <option value="salad">Salad</option>
+                    <option value="snack">Snack</option>
+                </select>
+            </div>
+            <div class="mb-3 d-inline-flex align-items-center" style="height: 3em; width: 40%">
+                <label class="form-label ms-1" for="prep-time">Preparation time:</label>
+                <input class="form-control ms-1" id="prep-time" type="number" name="prep-time" required style="width: 5em">
+            </div>
+            <div class="mb-3 d-inline-flex align-items-center" style="height: 3em; width: 40%">
+                <label class="form-label ms-1" for="cook-time">Cooking time (if appliable):</label>
+                <input class="form-control ms-1" id="cook-time" type="number" name="cook-time" required style="width: 5em">
+            </div>
+            <div><strong>{{ message }}</strong></div>
+            <button class="btn btn-primary fs-5 mt-2 rounded-4 border border-1 border-dark" type="submit">Register recipe</button>
+        </form>
+    </main>
+    {% include "footer.html" %}
+</body>
+</html>

@@ -57,7 +57,7 @@ def register():
 				return render_template('register.html', message='Email already registered')
 			password_hash = generate_password_hash(password)
 			print(password_hash)
-			cursor.execute('INSERT INTO users (username, email, password, created_at) VALUES (%s, %s, %s, %s)', (username, email, password_hash, datetime.now()))
+			cursor.execute('INSERT INTO users (username, email, password, created_at, updated_at) VALUES (%s, %s, %s, %s, %s)', (username, email, password_hash, datetime.now(), datetime.now()))
 			db.commit()
 			return render_template('register.html', message='Registered with sucess!')
 
@@ -128,7 +128,6 @@ def edit_user():
 			picture = request.files['picture']
 			print(picture.filename)
 			if picture.filename == '':
-				print('a')
 				flash('no selected file')
 				return redirect(f'/user/{user["id"]}')
 			if picture and allowed_file(picture.filename):
@@ -138,7 +137,7 @@ def edit_user():
 		elif not username and not picture:
 			new_password = request.form.get('password')
 			new_password_hash = generate_password_hash(new_password)
-			cursor.execute('UPDATE users SET password=%s WHERE id=%s', (new_password_hash, user['id']))
+			cursor.execute('UPDATE users SET password=%s, updated_at=%s WHERE id=%s', (new_password_hash, datetime.now(), user['id']))
 			db.commit()
 		else:
 			if not username or not password or not picture:
@@ -146,7 +145,7 @@ def edit_user():
 			new_username = request.form.get('username')
 			new_password = request.form.get('password')
 			new_password_hash = generate_password_hash(new_password)
-			cursor.execute('UPDATE users SET username=%s, password=%s WHERE id=%s', (new_username, new_password_hash, user['id']))
+			cursor.execute('UPDATE users SET username=%s, password=%s, updated_at WHERE id=%s', (new_username, new_password_hash, datetime.now(), user['id']))
 			db.commit()
 			picture = request.files['picture']
 			if picture.filename == '':
@@ -160,3 +159,8 @@ def edit_user():
 		return redirect(f'/user/{user["id"]}')
 	except:
 		return redirect(f'/user/{user["id"]}')
+
+@app.route('/register_recipe', methods=["GET", "POST"])
+def register_recipe():
+	if request.method == 'GET':
+		return render_template('register_recipe.html')

@@ -44,6 +44,12 @@
 			</form>
 			{% endif %}
 		</div>
+        <h2 class="text-center mb-2">Recipes</h2>
+        {% if logged_in %}
+        <form action="/register_recipe" method="get">
+            <button type="submit" class="btn btn-primary mx-auto fs-6" href="/register_recipe" style="display: block">Create New</button>
+        </form>
+        {% endif %}
 	</main>
 	{%include "footer.html" %}
 	<script src="{{url_for('static', filename='js/user.js')}}" type="text/javascript"></script>
