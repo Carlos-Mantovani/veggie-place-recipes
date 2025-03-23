@@ -33,10 +33,22 @@ def allowed_file(filename):
 
 @app.route('/')
 def index():
+    cursor.execute('SELECT * FROM recipes')
+    recipes = cursor.fetchall()
     if 'user' in session:
         user = session['user']
         print(user)
+        if len(recipes) > 0:
+            for recipe in recipes:
+                cursor.execute('SELECT username FROM users WHERE id = %s', (recipe['user_id'],))
+                recipe['creator'] = cursor.fetchall()[0]['username']
+            return render_template('index.html', user=user, recipes=recipes)
         return render_template('index.html', user=user)
+    if len(recipes) > 0:
+        for recipe in recipes:
+            cursor.execute('SELECT username FROM users WHERE id = %s', (recipe['user_id'],))
+            recipe['creator'] = cursor.fetchall()[0]['username']
+        return render_template('index.html', recipes=recipes)
     return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -56,7 +68,6 @@ def register():
             if len(user) > 0:
                 return render_template('register.html', message='Email already registered')
             password_hash = generate_password_hash(password)
-            print(password_hash)
             cursor.execute('INSERT INTO users (username, email, password, created_at, updated_at) VALUES (%s, %s, %s, %s, %s)', (username, email, password_hash, datetime.now(), datetime.now()))
             db.commit()
             return render_template('register.html', message='Registered with sucess!')
@@ -97,9 +108,10 @@ def logout():
 def show_user(id):
     cursor.execute('SELECT * FROM users WHERE id = %s', (id, ))
     user_shown = cursor.fetchall()[0]
+    cursor.execute('SELECT * FROM recipes WHERE user_id = %s', (id,))
+    user_shown['recipes'] = cursor.fetchall()
     if 'user' in session:
         user = session['user']
-        print(user)
         if int(id) == session['user']['id']:
             logged_in = True
             return render_template('user.html', user_shown=user_shown, user=user, logged_in=logged_in)
@@ -114,8 +126,6 @@ def edit_user():
         username = request.form.get('username')
         password = request.form.get('password')
         picture = request.files['picture']
-        print(request.form)
-        print(request.files)
         if not password and not picture:
             new_username = request.form.get('username')
             cursor.execute('UPDATE users SET username=%s WHERE id=%s', (new_username, user['id']))
@@ -126,7 +136,6 @@ def edit_user():
         #   db.commit()
         elif not password and not username:
             picture = request.files['picture']
-            print(picture.filename)
             if picture.filename == '':
                 flash('no selected file')
                 return redirect(f'/user/{user["id"]}')
@@ -143,7 +152,6 @@ def edit_user():
             if not username or not password or not picture:
                 return redirect(f'/user/{user["id"]}')
             new_username = request.form.get('username')
-            print(new_username)
             new_password = request.form.get('password')
             new_password_hash = generate_password_hash(new_password)
             cursor.execute('UPDATE users SET username=%s, password=%s, updated_at WHERE id=%s', (new_username, new_password_hash, datetime.now(), user['id']))
@@ -154,7 +162,6 @@ def edit_user():
                 return redirect(f'/user/{user["id"]}')
             if picture and allowed_file(picture.filename):
                 filename = secure_filename(user['id'] + filename.rsplit('.', 1)[1].lower())
-                print(filename)
                 picture.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 return redirect(f'/user/{user["id"]}')
         return redirect(f'/user/{user["id"]}')
@@ -172,7 +179,6 @@ def register_recipe():
     if request.method == 'POST':
         #try:
         user = session['user']
-        print('a')
         title = request.form.get('recipe-name')
         description = request.form.get('description')
         ingredients = request.form.get('ingredients')
@@ -181,12 +187,9 @@ def register_recipe():
         cook_time = request.form.get('cook-time')
         category = request.form.get('category')
         if not title or not description or not ingredients or not instructions or not prep_time or not cook_time or not category:
-            print('b')
             return render_template('register-recipe.html', user=user, message='You must fill in all the inputs')
-        print(user['id'])
         cursor.execute('INSERT INTO recipes (user_id, title, description, ingredients, instructions, prep_time, cook_time, category, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', (user['id'], title, description, ingredients, instructions, prep_time, cook_time, category, datetime.now(), datetime.now()))
         db.commit()
-        print('d')
         return redirect(f'/user/{user["id"]}')
         #except:
             #return redirect(f'/user/{user["id"]}')
