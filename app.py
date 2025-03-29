@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, request, redirect, session, flash, abort
 import mysql.connector
 from dev_settings import DATABASE_PASSWORD
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -91,7 +91,7 @@ def login():
             if check_password_hash(password_hash, password):
                 session.permanent = True
                 session['user'] = user
-                return redirect('/')
+                return redirect('/'), 201
             else:
                 return render_template('login.html', message='Incorrect username or password')
         except IndexError:
@@ -106,13 +106,21 @@ def logout():
 
 @app.route('/user/<id>')
 def show_user(id):
-    cursor.execute('SELECT * FROM users WHERE id = %s', (id, ))
-    user_shown = cursor.fetchall()[0]
-    cursor.execute('SELECT * FROM recipes WHERE user_id = %s', (id,))
-    user_shown['recipes'] = cursor.fetchall()
+    user = None
     if 'user' in session:
         user = session['user']
-        if int(id) == session['user']['id']:
+    cursor.execute('SELECT * FROM users WHERE id = %s', (id, ))
+    user_shown = cursor.fetchall()
+    if not user_shown:
+        if user:
+            logged_in = True
+            return render_template('user.html', user=user, logged_in=logged_in), 404
+        return render_template('user.html'), 404
+    user_shown = user_shown[0]
+    cursor.execute('SELECT * FROM recipes WHERE user_id = %s', (id,))
+    user_shown['recipes'] = cursor.fetchall()
+    if user:
+        if int(id) == user['id']:
             logged_in = True
             return render_template('user.html', user_shown=user_shown, user=user, logged_in=logged_in)
         return render_template('user.html', user_shown=user_shown, user=user)
@@ -193,3 +201,23 @@ def register_recipe():
         return redirect(f'/user/{user["id"]}')
         #except:
             #return redirect(f'/user/{user["id"]}')
+
+@app.route('/recipe/<id>')
+def recipe(id):
+    user = None
+    if 'user' in session:
+        user = session['user']
+    cursor.execute('SELECT * FROM recipes WHERE id = %s', (id, ))
+    recipe = cursor.fetchall()
+    if not recipe:
+        if user:
+            return render_template('recipe.html', user=user)
+        return render_template('recipe.html')
+    recipe = recipe[0]
+    cursor.execute('SELECT * FROM users WHERE id = %s', (recipe['user_id'],))
+    recipe['creator'] = cursor.fetchall()[0]['username']
+    recipe['created_at'] = recipe['created_at'].strftime('%d/%m/%Y')
+    if user:
+        return render_template('recipe.html', recipe=recipe, user=user)
+    return render_template('recipe.html', recipe=recipe)
+
