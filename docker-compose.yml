@@ -1,0 +1,38 @@
+services:
+  app:
+    build: .
+    container_name: flask_app
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_NAME: veggie_place
+    networks:
+      - veggie_place
+
+  db:
+    image: mysql:latest
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: senha
+      MYSQL_DATABASE: veggie_place
+    ports:
+      - "3306:3306"
+    networks:
+      - veggie_place
+    volumes:
+      - ./data:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+
+networks:
+  veggie_place:
+
+

@@ -1,18 +1,28 @@
 from flask import Flask, render_template, request, redirect, session, flash, abort
 import mysql.connector
-from dev_settings import DATABASE_PASSWORD
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 import secrets
 import random
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
 import os
 
+load_dotenv()
+
+app = Flask(__name__)
+
+DB_HOST = os.getenv("DB_HOST")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_NAME = os.getenv("DB_NAME")
+
+
 db = mysql.connector.connect(
-    host='localhost',
-    user='root',
-    password=DATABASE_PASSWORD,
-    database='veggie_place'
+    host=DB_HOST,
+    user=DB_USER,
+    password=DB_PASSWORD,
+    database=DB_NAME
 )
 
 cursor = db.cursor(dictionary=True)
@@ -20,9 +30,6 @@ cursor = db.cursor(dictionary=True)
 UPLOAD_FOLDER = os.getcwd() + '/static/photos'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
-print(UPLOAD_FOLDER)
-
-app = Flask(__name__)
 app.secret_key=secrets.token_urlsafe(random.randrange(16, 256))
 app.permanent_session_lifetime = timedelta(days=5)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -211,8 +218,8 @@ def recipe(id):
     recipe = cursor.fetchall()
     if not recipe:
         if user:
-            return render_template('recipe.html', user=user)
-        return render_template('recipe.html')
+            return render_template('recipe.html', user=user), 404
+        return render_template('recipe.html'), 404
     recipe = recipe[0]
     cursor.execute('SELECT * FROM users WHERE id = %s', (recipe['user_id'],))
     recipe['creator'] = cursor.fetchall()[0]['username']
@@ -221,3 +228,5 @@ def recipe(id):
         return render_template('recipe.html', recipe=recipe, user=user)
     return render_template('recipe.html', recipe=recipe)
 
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
