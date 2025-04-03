@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash, abort
+from flask import Flask, render_template, request, redirect, session, flash, abort, jsonify
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
@@ -227,6 +227,13 @@ def recipe(id):
     if user:
         return render_template('recipe.html', recipe=recipe, user=user)
     return render_template('recipe.html', recipe=recipe)
+
+@app.route('/search_recipes')
+def search_recipes():
+    cursor.execute('SELECT * FROM recipes')
+    recipes = cursor.fetchall()
+    return jsonify(recipes)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

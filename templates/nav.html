@@ -1,36 +1,73 @@
 <nav class="navbar sticky-top bg-body-tertiary shadow-sm">
-	<div class="container-fluid justify-content-between">
-		<a class="navbar-brand" href="/"><img src="{{ url_for('static', filename='img/logo.png') }}" width="200px"></img></a>
-		<form class="d-flex mx-auto" role="search" style="width: 40%">
-			<div class="input-group">
-				<input type="text" class="form-control py-2" placeholder="Search" aria-describedby="button-addon2">
-				<button class="btn btn-outline-secondary" type="button" id="button-addon2"><i class="fa-solid fa-magnifying-glass"></i></button>
-			</div>
-		</form>
-		{% if user %}
-			<div class="d-flex flex-row justify-content-end align-items-center me-3">
-				<div class="d-flex flex-column align-items-center me-4">
-					<a href="/user/{{ user.id }}"><div id="picture" class="bg-dark-subtle rounded-circle" style="width: 70px; height: 70px;"></div></a>
-					<p class="mb-0">{{ user.username.split(' ', 1)[0] }}</p>
-				</div>
-				<div>
-					<p class="mb-0 fs-5"><a class="mb-0 link-dark text-decoration-none" href="/logout">Log Out</a></p>
-				</div>
-			</div>
-			<script>
-				const userPhoto = document.querySelector('#picture');
-				const userId = '{{ user.id }}';
-				const urlPhotos = '{{ url_for("static", filename="photos/") }}'
-				userPhoto.style.backgroundImage = `url(${urlPhotos}${userId}.jpg)`;
-				userPhoto.style.backgroundSize = 'cover';
-				userPhoto.style.backgroundPosition = 'center';
-			</script>
-		{% else %}
-			<div class="d-flex flex-column align-items-center me-4">
-				<p class="mb-0"><a href="/login" class="fs-5 link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Sign In</a></p><br>
-				<p class="mb-0">or</p><br>
-				<p class="mb-0"><a href="/register" class="fs-6 link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Sign Up</a></p>
-			</div>
-		{% endif %}
-	</div>
+    <div class="container-fluid justify-content-between">
+        <a class="navbar-brand" href="/"><img src="{{ url_for('static', filename='img/logo.png') }}" width="200px"></img></a>
+        <form class="d-flex mx-auto" role="search" style="width: 40%">
+            <div class="input-group" id="inputSearch">
+                <input type="text" class="form-control py-2" id="searchBar" placeholder="Search" aria-describedby="button-addon2">
+                <button class="btn btn-outline-secondary" type="button" id="button-addon2"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <div class="list-group" id="results" style="position: absolute; top: 100%; width: 100%"></div>
+            </div>
+        </form>
+        {% if user %}
+            <div class="d-flex flex-row justify-content-end align-items-center me-3">
+                <div class="d-flex flex-column align-items-center me-4">
+                    <a href="/user/{{ user.id }}"><div id="picture" class="bg-dark-subtle rounded-circle" style="width: 70px; height: 70px;"></div></a>
+                    <p class="mb-0">{{ user.username.split(' ', 1)[0] }}</p>
+                </div>
+                <div>
+                    <p class="mb-0 fs-5"><a class="mb-0 link-dark text-decoration-none" href="/logout">Log Out</a></p>
+                </div>
+            </div>
+            <script>
+                const userPhoto = document.querySelector('#picture');
+                const userId = '{{ user.id }}';
+                const urlPhotos = '{{ url_for("static", filename="photos/") }}'
+                userPhoto.style.backgroundImage = `url(${urlPhotos}${userId}.jpg)`;
+                userPhoto.style.backgroundSize = 'cover';
+                userPhoto.style.backgroundPosition = 'center';
+            </script>
+        {% else %}
+            <div class="d-flex flex-column align-items-center me-4">
+                <p class="mb-0"><a href="/login" class="fs-5 link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Sign In</a></p><br>
+                <p class="mb-0">or</p><br>
+                <p class="mb-0"><a href="/register" class="fs-6 link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Sign Up</a></p>
+            </div>
+        {% endif %}
+    </div>
 </nav>
+
+<script>
+    let recipes = [];
+    fetch('/search_recipes')
+        .then(response => response.json())
+        .then(data => {recipes = data;});
+
+    input = document.getElementById('inputSearch');
+    searchBar = document.getElementById('searchBar');
+
+    input.addEventListener('focusout', function() {
+        let results = document.getElementById('results');
+        document.getElementById('results').style.display = 'none';
+    });
+
+    searchBar.addEventListener('focus', function() {
+        document.getElementById('results').style.display = 'inline-block';
+    });
+
+    searchBar.addEventListener('input', function () {
+        let query = this.value.trim().toLowerCase();
+        let filtered = recipes.filter(recipe => recipe.title.toLowerCase().includes(query));
+        let resultsList = document.getElementById('results');
+        resultsList.innerHTML = '';
+        filtered.forEach(recipe => {
+            //let li = document.createElement("li");
+            //li.classList.add('list-group-item', 'list-group-item-action');
+            let link = document.createElement('a');
+            link.href = "/recipe/" + recipe.id;
+            link.textContent = recipe.title;
+            link.classList.add('list-group-item', 'list-group-item-action');
+            //resultsList.appendChild(li);
+            resultsList.appendChild(link);
+        });
+    });
+</script>
