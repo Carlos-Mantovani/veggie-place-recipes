@@ -17,11 +17,18 @@
         {% if recipe %}
         <h1 class="fs-1 fw-bold text-center mt-4 mb-1">{{ recipe.title }}</h1>
         <p class="text-center fs-6 my-1">Created by <a class="text-reset text-decoration-none" href="/user/{{ recipe.user_id }}">{{ recipe.creator }}</a> in {{ recipe.created_at }}</p>
+        {% if user %}
+            <form action="/delete_recipe/{{ recipe.id }}" method="post" class="d-flex align-items-center justify-content-center mt-4 mx-auto" style="width: 120px">
+                <button class="btn btn-secondary" type="submit">Delete</button>
+            </form>
+        {% endif %}
         <p class="text-center fs-2">{{ recipe.description }}</p>
         <div class="mx-auto fs-4"  style="width: 40vw">
             <div class="fs-5 d-flex flex-row mb-2 justify-content-between" style="width: 50%">
                 <p class="mb-0">Prep time: {{ recipe.prep_time }}</p>
-                <p class="mb-0">Cook time: {{ recipe.cook_time }}</p>
+                {% if recipe.cook_time %}
+                    <p class="mb-0">Cook time: {{ recipe.cook_time }}</p>
+                {% endif %}
             </div>
             <p class="fw-bold mb-1">Ingredients</p>
             <p class="mt-0">{{ recipe.ingredients }}</p>

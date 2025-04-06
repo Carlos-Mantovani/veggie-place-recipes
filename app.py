@@ -98,7 +98,7 @@ def login():
             if check_password_hash(password_hash, password):
                 session.permanent = True
                 session['user'] = user
-                return redirect('/'), 201
+                return redirect('/')
             else:
                 return render_template('login.html', message='Incorrect username or password')
         except IndexError:
@@ -215,16 +215,16 @@ def recipe(id):
     if 'user' in session:
         user = session['user']
     cursor.execute('SELECT * FROM recipes WHERE id = %s', (id, ))
-    recipe = cursor.fetchall()
+    recipe = cursor.fetchone()
     if not recipe:
         if user:
             return render_template('recipe.html', user=user), 404
         return render_template('recipe.html'), 404
-    recipe = recipe[0]
     cursor.execute('SELECT * FROM users WHERE id = %s', (recipe['user_id'],))
     recipe['creator'] = cursor.fetchall()[0]['username']
     recipe['created_at'] = recipe['created_at'].strftime('%d/%m/%Y')
     if user:
+        print('user in session')
         return render_template('recipe.html', recipe=recipe, user=user)
     return render_template('recipe.html', recipe=recipe)
 
@@ -234,6 +234,16 @@ def search_recipes():
     recipes = cursor.fetchall()
     return jsonify(recipes)
 
+@app.route('/delete_recipe/<id>', methods=['POST'])
+def delete_recipe(id):
+    user = session['user']
+    cursor.execute('SELECT user_id FROM recipes WHERE id = %s', (id, ))
+    creator_id = cursor.fetchone()['user_id']
+    if creator_id == user['id']:
+        cursor.execute('DELETE FROM recipes WHERE id = %s', (id, ))
+        db.commit()
+        return redirect('/')
+    return redirect(f'/recipe/{id}')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
